@@ -12,6 +12,7 @@ from flask_bootstrap import Bootstrap5
 from flask_wtf.csrf import CSRFProtect
 
 from app.auth import auth
+from app.logging_config import log_con
 from app.auth import auth
 from app.cli import create_database
 from app.context_processors import utility_text_processors
@@ -51,6 +52,7 @@ def create_app():
     bootstrap = Bootstrap5(app)
     app.register_blueprint(simple_pages)
     app.register_blueprint(auth)
+    app.register_blueprint(log_con)
     app.context_processor(utility_text_processors)
     app.config['BOOTSTRAP_BOOTSWATCH_THEME'] = 'Simplex'
     app.register_error_handler(404, page_not_found)
