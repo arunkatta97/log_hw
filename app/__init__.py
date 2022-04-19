@@ -25,8 +25,22 @@ from flask.logging import default_handler
 
 login_manager = flask_login.LoginManager()
 
+
 def page_not_found(e):
     return render_template("404.html"), 404
+
+
+class RequestFormatter(logging.Formatter):
+    def format(self, record):
+        if has_request_context():
+            record.url = request.url
+            record.remote_addr = request.remote_addr
+        else:
+            record.url = None
+            record.remote_addr = None
+
+        return super().format(record)
+
 
 def create_app():
     """Create and configure an instance of the Flask application."""
@@ -50,6 +64,19 @@ def create_app():
     # add command function to cli commands
     app.cli.add_command(create_database)
     app.cli.add_command(create_log_folder)
+
+    # Deactivate the default flask logger so that log messages don't get duplicated
+    app.logger.removeHandler(default_handler)
+
+    # get root directory of project
+    root = os.path.dirname(os.path.abspath(__file__))
+    # set the name of the apps log folder to logs
+    logdir = os.path.join(root, 'logs')
+    # make a directory if it doesn't exist
+    if not os.path.exists(logdir):
+        os.mkdir(logdir)
+    # set name of the log file
+    log_file = os.path.join(logdir, 'info.log')
 
     return app
 
